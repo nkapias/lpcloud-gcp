@@ -17,7 +17,7 @@ jobs:
           node-version: 18
       - run: npm ci
       - run: npm run test
-      
+
   build-publish:
     needs: test
     name: Build And Publish To GCP Artifact Registry
@@ -32,10 +32,10 @@ jobs:
           registry: europe-west1-docker.pkg.dev
           username: _json_key
           password: ${{ secrets.CLOUD_RUN_DEPLOYER_SA_KEY }}
-       - id: docker-push-tagged
-         name: Tag Docker image and push to Google Artifact Registry
-         uses: docker/build-push-action@v3
-         with:
-           push: true
-           tags: |
-             europe-west1-docker.pkg.dev/ascendant-nova-380012/lpcloud-gcp/image:${{ github.sha }}
+      - id: docker-push-tagged
+        name: Tag Docker image and push to Google Artifact Registry
+        uses: docker/build-push-action@v3
+        with:
+          push: true
+          tags: |
+            europe-west1-docker.pkg.dev/ascendant-nova-380012/lpcloud-gcp/image:${{ github.sha }}
