@@ -5,17 +5,19 @@ on:
     branches: ["master"]
 
 jobs:
+
   test:
     runs-on: ubuntu-latest
     name: app' tests
     steps:
-      - uses: actions/checkout@v3 #defaults to repository link
+      - uses: actions/checkout@v3
       - name: automated tests
         uses: actions/setup-node@v3
         with:
           node-version: 18
-      - run: npm ci #similar to npm install, only if package.json already exists
+      - run: npm ci
       - run: npm run test
+      
   build-publish:
     needs: test
     name: Build And Publish To GCP Artifact Registry
@@ -24,8 +26,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@master
-
-      # Build and publish the Docker image to the GCP Artifact Registry
       - name: Login to GAR for testing
         uses: docker/login-action@v2
         with:
