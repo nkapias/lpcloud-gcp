@@ -18,7 +18,7 @@ jobs:
       - run: npm ci
       - run: npm run test
 
-  build-publish:
+  build-publish-deploy:
     needs: test
     name: Build And Publish To GCP Artifact Registry
     runs-on: ubuntu-latest
@@ -39,3 +39,23 @@ jobs:
           push: true
           tags: |
             europe-west1-docker.pkg.dev/ascendant-nova-380012/lpcloud-gcp/image:${{ github.sha }}
+      - id: "auth"
+              uses: "google-github-actions/auth@v1"
+              with:
+                credentials_json: "${{ secrets.CLOUD_RUN_DEPLOYER_SA_KEY }}"
+      - id: "deploy"
+        uses: "google-github-actions/deploy-cloudrun@v1"
+        with:
+          service: "workshop"
+          image: "europe-west1-docker.pkg.dev/ascendant-nova-380012/lpcloud-gcp/image:${{ github.sha }}"
+          env_vars: |
+            NODE_ENV=production
+            PGDATABASE=${{ secrets.PGDATABASE }}
+            PGHOST=${{ secrets.PGHOST }}
+            PGPORT=${{ secrets.PGPORT }}
+            PGUSER=${{ secrets.PGUSER }}
+            PGPASSWORD=${{ secrets.PGPASSWORD }}
+          flags: "--port=8080"
+          region: "europe-west1"
+      - name: "deploy output"
+        run: 'curl "${{ steps.deploy.outputs.url }}"'            
